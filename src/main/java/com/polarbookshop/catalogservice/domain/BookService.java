@@ -1,6 +1,5 @@
 package com.polarbookshop.catalogservice.domain;
 
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,12 +19,12 @@ public class BookService
 
     public Book viewBookDetails(String isbn)
     {
-        return bookRepository.findByISBN(isbn).orElseThrow(() -> new BookNotFoundException(isbn));
+        return bookRepository.findByIsbn(isbn).orElseThrow(() -> new BookNotFoundException(isbn));
     }
 
     public Book addBookToCatalog(Book book)
     {
-         if(bookRepository.existsByISBN(book.isbn()))
+         if(bookRepository.existsByIsbn(book.isbn()))
          {
              throw new BookAlreadyExistsException(book.isbn());
          }
@@ -40,8 +39,10 @@ public class BookService
 
     public Book editBookDetails(String isbn, Book book)
     {
-        return bookRepository.findByISBN(isbn).map(existingBook -> {
-            var bookToUpdate = new Book(existingBook.isbn(), book.title(), book.author(), book.price());
+        return bookRepository.findByIsbn(isbn).map(existingBook -> {
+            var bookToUpdate = new Book(existingBook.id(), existingBook.isbn(), book.title(),
+                    book.author(), book.price(), book.publisher(), existingBook.createdDate(),
+                    existingBook.lastModifiedDate(), existingBook.version());
             return bookRepository.save(bookToUpdate);
         }).orElseGet(() -> bookRepository.save(book));
     }
